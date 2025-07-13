@@ -16,11 +16,11 @@ speed = st.sidebar.slider("Velocidad Inicial", 0.5, 10.0, 3.5, 0.1)
 st.sidebar.markdown("**Colores Círculos**")
 num_colors = st.sidebar.slider("Número de Colores", 1, 8, 3)
 
-default_palette = ["#F1C715", "#F9980D", "#AF6F15", "#FFD93D", "#C34A36", "#8E44AD", "#3498DB", "#E67E22"]
+default_palette = ["#F1C715", "#F9980D", "#9C1618", "#FFD93D", "#C34A36", "#8E44AD", "#3498DB", "#E67E22"]
 colors = [st.sidebar.color_picker(f" Color {i+1}", default_palette[i]) for i in range(num_colors)]
 
-wall_color = st.sidebar.color_picker("Color de Paredes", "#33AD59")
-bg_color = st.sidebar.color_picker("Color de Fondo", "#ABE2BE")
+wall_color = st.sidebar.color_picker("Color de Paredes", "#A4957E")
+bg_color = st.sidebar.color_picker("Color de Fondo", "#000000")
 
 # Store settings
 if "settings" not in st.session_state:
@@ -70,8 +70,9 @@ html_code = f"""
         opacity: 0;
         transition: opacity 0.3s ease;
         padding: 4px 6px;
+        z-index: 10;
     }}
-    #canvasContainer:hover #fsBtn {{
+    #canvasContainer.hovering #fsBtn {{
         opacity: 1;
     }}
     #fsBtn:hover {{
@@ -96,15 +97,6 @@ function rand() {{
 
 const canvas = document.getElementById("artCanvas");
 const container = document.getElementById("canvasContainer");
-
-function resizeCanvas() {{
-    const rect = container.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-}}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
-
 const ctx = canvas.getContext("2d");
 const COLORS = {colors_js};
 const NUM_SHAPES = {cfg["num_shapes"]};
@@ -112,6 +104,30 @@ const NUM_WALLS = {cfg["num_walls"]};
 const SPEED = {cfg["speed"]};
 const SHAPES = [];
 const WALLS = [];
+
+function resizeCanvas() {{
+    const rect = container.getBoundingClientRect();
+    const oldWidth = canvas.width;
+    const oldHeight = canvas.height;
+    const scaleX = rect.width / oldWidth;
+    const scaleY = rect.height / oldHeight;
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // Adjust positions proportionally
+    SHAPES.forEach(s => {{
+        s.x *= scaleX;
+        s.y *= scaleY;
+    }});
+    WALLS.forEach(w => {{
+        w.x *= scaleX;
+        w.y *= scaleY;
+    }});
+}}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 class Shape {{
     constructor() {{
@@ -236,6 +252,14 @@ function init() {{
 }}
 
 init();
+
+// Hover tracking for fullscreen button visibility
+container.addEventListener("mouseenter", () => {{
+    container.classList.add("hovering");
+}});
+container.addEventListener("mouseleave", () => {{
+    container.classList.remove("hovering");
+}});
 
 // Fullscreen toggle
 const fsBtn = document.getElementById("fsBtn");
