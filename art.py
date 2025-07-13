@@ -50,7 +50,7 @@ if st.button("Regenerar Lienzo"):
 cfg = st.session_state.settings
 colors_js = "[" + ",".join(f'"{c}"' for c in cfg["colors"]) + "]"
 
-# HTML + JS with 16:9 aspect ratio and responsive canvas
+# HTML + JS
 html_code = f"""
 <div id="canvasContainer" style="position: relative; width: 100%; max-width: 1200px; aspect-ratio: 16/9; margin: 30px auto;">
   <canvas id="artCanvas"
@@ -177,10 +177,10 @@ class Shape {{
 
 class Wall {{
     constructor() {{
-        this.x = rand() * (canvas.width - 200);
-        this.y = rand() * (canvas.height - 200);
         this.w = 50 + rand() * 120;
         this.h = 20 + rand() * 80;
+        this.x = rand() * (canvas.width - this.w);
+        this.y = rand() * (canvas.height - this.h);
     }}
     draw() {{
         ctx.fillStyle = "{cfg['wall_color']}";
@@ -248,6 +248,5 @@ fsBtn.addEventListener("click", () => {{
 }});
 </script>
 """
+
 components.html(html_code, height=750)
-
-
