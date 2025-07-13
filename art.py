@@ -16,19 +16,13 @@ speed = st.sidebar.slider("Velocidad Inicial", 0.5, 10.0, 3.5, 0.1)
 st.sidebar.markdown("**Colores Círculos**")
 num_colors = st.sidebar.slider("Número de Colores", 1, 8, 3)
 
-# Color palette selection
 default_palette = ["#F1C715", "#F9980D", "#AF6F15", "#FFD93D", "#C34A36", "#8E44AD", "#3498DB", "#E67E22"]
+colors = [st.sidebar.color_picker(f" Color {i+1}", default_palette[i]) for i in range(num_colors)]
 
-colors = []
-for i in range(num_colors):
-    color = st.sidebar.color_picker(f" Color {i+1}", default_palette[i])
-    colors.append(color)
-
-# Nice default colors for walls and background
 wall_color = st.sidebar.color_picker("Color de Paredes", "#33AD59")
 bg_color = st.sidebar.color_picker("Color de Fondo", "#ABE2BE")
 
-# Store settings in session_state
+# Store settings
 if "settings" not in st.session_state:
     st.session_state.settings = {
         "seed": random.randint(0, 999_999),
@@ -56,11 +50,11 @@ if st.button("Regenerar Lienzo"):
 cfg = st.session_state.settings
 colors_js = "[" + ",".join(f'"{c}"' for c in cfg["colors"]) + "]"
 
-# HTML + JavaScript for Canvas
+# HTML + JS with 16:9 aspect ratio and responsive canvas
 html_code = f"""
-<div id="canvasContainer" style="position: relative; width: 100%; max-width: 1200px; height: 800px; margin: 30px auto;">
+<div id="canvasContainer" style="position: relative; width: 100%; max-width: 1200px; aspect-ratio: 16/9; margin: 30px auto;">
   <canvas id="artCanvas"
-      style="border-radius: 25px; border: 3px solid #8884; background: {cfg['bg_color']}; width: 100%; height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.2); display: block;">
+      style="border-radius: 25px; border: 3px solid #8884; background: {cfg['bg_color']}; width: 100%; height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.2); display: block; position: absolute; top: 0; left: 0;">
   </canvas>
 
   <style>
@@ -103,9 +97,13 @@ function rand() {{
 const canvas = document.getElementById("artCanvas");
 const container = document.getElementById("canvasContainer");
 
-// Dynamically set canvas size based on container
-canvas.width = container.clientWidth;
-canvas.height = container.clientHeight;
+function resizeCanvas() {{
+    const rect = container.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+}}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 const ctx = canvas.getContext("2d");
 const COLORS = {colors_js};
@@ -139,7 +137,6 @@ class Shape {{
         this.x += this.dx;
         this.y += this.dy;
 
-        // Fixed boundary collisions with repositioning
         if (this.x - this.radius < 0) {{
             this.x = this.radius;
             this.dx *= -1;
@@ -251,6 +248,6 @@ fsBtn.addEventListener("click", () => {{
 }});
 </script>
 """
+components.html(html_code, height=750)
 
-# Inject canvas + JS
-components.html(html_code, height=850)
+
