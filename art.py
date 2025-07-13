@@ -17,14 +17,16 @@ st.sidebar.markdown("**Colores Círculos**")
 num_colors = st.sidebar.slider("Número de Colores", 1, 8, 3)
 
 # Color palette selection
-default_palette = ["#FF6B6B", "#6BCB77", "#4D96FF", "#FFD93D", "#C34A36", "#8E44AD", "#3498DB", "#E67E22"]
+default_palette = ["#F1C715", "#F9980D", "#AF6F15", "#FFD93D", "#C34A36", "#8E44AD", "#3498DB", "#E67E22"]
+
 colors = []
 for i in range(num_colors):
-    color = st.sidebar.color_picker(f"🎯 Color {i+1}", default_palette[i % len(default_palette)])
+    color = st.sidebar.color_picker(f" Color {i+1}", default_palette[i])
     colors.append(color)
 
-wall_color = st.sidebar.color_picker("Color de Paredes", "#555555")
-bg_color = st.sidebar.color_picker("Color de Fondo", "#FAFAFA")
+# Nice default colors for walls and background
+wall_color = st.sidebar.color_picker("Color de Paredes", "#33AD59")
+bg_color = st.sidebar.color_picker("Color de Fondo", "#ABE2BE")
 
 # Store settings in session_state
 if "settings" not in st.session_state:
